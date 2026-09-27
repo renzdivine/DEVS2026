@@ -1,0 +1,10 @@
+RewriteEngine On
+
+# Local XAMPP: RewriteBase /DEVS/public/
+# Production (InfinityFree): RewriteBase /
+# This single rule works for both because BASE_URL handles the prefix in PHP
+RewriteBase /DEVS/public/
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php [L,QSA]

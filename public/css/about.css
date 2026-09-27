@@ -1,0 +1,455 @@
+/* =========================================================
+   DEVS — About & Team Merged Page Stylesheet
+   ========================================================= */
+
+/* ---------- Hero ---------- */
+.about-page-hero {
+    padding: clamp(3.5rem, 8vw, 5.5rem) 0 clamp(2rem, 4vw, 3rem);
+}
+
+.about-page-hero .section-subtitle {
+    font-family: var(--font-display);
+    font-size: clamp(1.2rem, 2.4vw, 1.5rem);
+    color: var(--accent);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin-top: 10px;
+}
+
+/* ---------- Statement & Philosophy ---------- */
+.about-statement {
+    padding-bottom: clamp(3rem, 6vw, 4.5rem);
+}
+
+.about-statement h2 {
+    max-width: 720px;
+    margin-bottom: 20px;
+}
+
+.about-details p {
+    max-width: 68ch;
+    margin-bottom: 16px;
+    font-size: 1.05rem;
+    line-height: 1.75;
+}
+
+.about-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0;
+    margin-top: clamp(2.5rem, 5vw, 3.5rem);
+    border-top: 1px solid var(--border);
+    border-left: 1px solid var(--border);
+}
+
+.about-cell {
+    padding: clamp(1.5rem, 3vw, 2.25rem);
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+}
+
+.about-cell h3 {
+    font-size: 1.05rem;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+}
+
+.about-cell p {
+    font-size: 14.5px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin: 0;
+}
+
+@media (max-width: 640px) {
+    .about-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .about-cell {
+        border-right: none;
+    }
+}
+
+/* ---------- Slanted Team Showcase Section ---------- */
+.about-team-section {
+    padding: clamp(4rem, 8vw, 6rem) 0;
+    border-top: 1px solid var(--border);
+    overflow: hidden;
+}
+
+.about-team-section .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.team-header-slanted {
+    text-align: center;
+    margin: 0 auto clamp(2.5rem, 5vw, 4rem) auto;
+    width: 100%;
+    max-width: 700px;
+}
+
+.team-heading-slanted {
+    font-family: var(--font-body);
+    font-size: clamp(2.4rem, 5vw, 4rem);
+    font-weight: 900;
+    font-style: italic;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--accent);
+    line-height: 1.1;
+    margin-bottom: 12px;
+    text-align: center;
+}
+
+.team-subtitle-slanted {
+    font-size: clamp(0.95rem, 1.8vw, 1.1rem);
+    font-style: italic;
+    color: var(--text-secondary);
+    max-width: 580px;
+    margin: 0 auto;
+    line-height: 1.6;
+    text-align: center;
+}
+
+/* ---------- Slanted Grid & Cards (Reference Match) ---------- */
+.team-grid-slanted {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    gap: clamp(1.6rem, 3vw, 2.5rem);
+    padding: 10px 14px 20px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.team-card-slanted {
+    flex: 0 0 clamp(240px, 22vw, 270px);
+    width: clamp(240px, 22vw, 270px);
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+    transition: transform 0.35s var(--ease);
+}
+
+.team-card-slanted:hover {
+    transform: translateY(-8px);
+}
+
+/* 1. Slanted Photo Frame */
+.slanted-photo-frame {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 3.1 / 4;
+    transform: skewX(-11deg);
+    transform-origin: center center;
+    border: 1px solid var(--border);
+    background: var(--bg-secondary);
+    overflow: hidden;
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-sm);
+    transition: border-color 0.3s var(--ease), box-shadow 0.3s var(--ease);
+}
+
+.team-card-slanted:hover .slanted-photo-frame {
+    border-color: var(--accent);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.16);
+}
+
+/* Accent corner tab on top-left of photo (matching reference image) */
+.slanted-corner-accent {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 32px;
+    height: 42px;
+    border-top: 3px solid var(--accent);
+    border-left: 3px solid var(--accent);
+    z-index: 3;
+    pointer-events: none;
+    transition: width 0.3s var(--ease), height 0.3s var(--ease);
+}
+
+.team-card-slanted:hover .slanted-corner-accent {
+    width: 46px;
+    height: 56px;
+}
+
+/* Counter-skew photo inside so the person's face remains natural and undistorted */
+.slanted-photo-inner {
+    width: 100%;
+    height: 100%;
+    transform: skewX(11deg) scale(1.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.slanted-photo-inner img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    transition: transform 0.5s var(--ease);
+}
+
+.team-card-slanted:hover .slanted-photo-inner img {
+    transform: scale(1.08);
+}
+
+.slanted-photo-inner .photo-placeholder {
+    font-family: var(--font-display);
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+    user-select: none;
+}
+
+/* 2. Slanted Info Badge Directly Below Photo */
+.slanted-info-badge {
+    position: relative;
+    transform: skewX(-11deg);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent);
+    border-radius: var(--radius-sm);
+    padding: 14px 18px;
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    transition: border-color 0.3s var(--ease), box-shadow 0.3s var(--ease), background-color 0.3s var(--ease);
+}
+
+.team-card-slanted:hover .slanted-info-badge {
+    border-color: var(--border-strong);
+    border-left-color: var(--accent);
+    box-shadow: var(--shadow-md);
+}
+
+/* Subtle corner angle wedge on top-left of the info badge */
+.slanted-info-badge::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    border-top: 10px solid var(--accent);
+    border-right: 10px solid transparent;
+}
+
+/* Counter-skew inner text for clean horizontal legibility */
+.slanted-info-inner {
+    transform: skewX(11deg);
+}
+
+.slanted-member-name {
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1.25;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-primary);
+    margin: 0 0 3px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.slanted-member-role {
+    font-size: 13px;
+    font-style: italic;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color 0.2s var(--ease);
+}
+
+.team-card-slanted:hover .slanted-member-role {
+    color: var(--accent);
+}
+
+/* ---------- Responsive Rules ---------- */
+@media (max-width: 1100px) {
+    .team-grid-slanted {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2.5rem 2.2rem;
+        max-width: 720px;
+        margin: 0 auto;
+    }
+}
+
+@media (max-width: 600px) {
+    .team-grid-slanted {
+        grid-template-columns: 1fr;
+        max-width: 320px;
+        gap: 2rem;
+        margin: 0 auto;
+    }
+
+    .slanted-photo-frame {
+        transform: skewX(-8deg);
+    }
+
+    .slanted-photo-inner {
+        transform: skewX(8deg) scale(1.15);
+    }
+
+    .slanted-info-badge {
+        transform: skewX(-8deg);
+    }
+
+    .slanted-info-inner {
+        transform: skewX(8deg);
+    }
+}
+
+/* ---------- Skills / Technologies Showcase (Reference Match) ---------- */
+.skills-showcase-section {
+    padding: clamp(4.5rem, 8vw, 6.5rem) 0;
+    border-top: 1px solid var(--border);
+}
+
+.skills-showcase-section .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.skills-header {
+    text-align: center;
+    margin-bottom: clamp(2.5rem, 5vw, 4rem);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.skills-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 7px 22px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-pill);
+    font-family: var(--font-body);
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text-primary);
+    box-shadow: var(--shadow-sm);
+    letter-spacing: 0.02em;
+    margin-bottom: 16px;
+    transition: border-color 0.2s var(--ease), transform 0.2s var(--ease);
+}
+
+.skills-pill:hover {
+    border-color: var(--accent);
+    transform: translateY(-1px);
+}
+
+.skills-subtitle {
+    font-family: var(--font-body);
+    font-size: clamp(1.1rem, 2.2vw, 1.35rem);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 auto;
+    text-align: center;
+    max-width: 680px;
+    line-height: 1.45;
+}
+
+/* Centered Icon Grid */
+.skills-icon-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    gap: clamp(1.8rem, 3.8vw, 3.2rem) clamp(2.2rem, 4.4vw, 4rem);
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 10px 16px;
+    width: 100%;
+}
+
+.skill-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 12px;
+    width: 90px;
+    cursor: default;
+    transition: transform 0.25s var(--ease);
+}
+
+.skill-item:hover {
+    transform: translateY(-5px);
+}
+
+.skill-icon-wrap {
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.25s var(--ease);
+}
+
+.skill-icon-wrap svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.08));
+    transition: transform 0.25s var(--ease);
+}
+
+.skill-item:hover .skill-icon-wrap {
+    transform: scale(1.12);
+}
+
+.skill-label {
+    font-family: var(--font-body);
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    transition: color 0.2s var(--ease);
+    white-space: nowrap;
+    line-height: 1.2;
+}
+
+.skill-item:hover .skill-label {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+@media (max-width: 640px) {
+    .skills-icon-grid {
+        gap: 1.8rem 1.4rem;
+    }
+
+    .skill-item {
+        width: 76px;
+    }
+
+    .skill-icon-wrap {
+        width: 46px;
+        height: 46px;
+    }
+
+    .skill-label {
+        font-size: 12.5px;
+    }
+}
+

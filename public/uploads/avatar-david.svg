@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+  <rect width="160" height="160" fill="#201f1e"/>
+  <circle cx="80" cy="58" r="32" fill="#383531"/>
+  <path d="M28 142 C 28 108, 52 94, 80 94 C 108 94, 132 108, 132 142 Z" fill="#383531"/>
+  <text x="80" y="86" fill="#f4efe6" font-family="'Space Grotesk', sans-serif" font-size="28" font-weight="600" text-anchor="middle">DC</text>
+</svg>
