@@ -29,6 +29,7 @@
         initContactFaq();
         initOptionalDetailsToggle();
         initAdminSearch();
+        initChatbot();
 
         if (!reduced && hasGSAP) {
             initPageEnter();
@@ -1208,6 +1209,234 @@
                 var match = !query || row.textContent.toLowerCase().indexOf(query) !== -1;
                 row.style.display = match ? '' : 'none';
             });
+        });
+    }
+
+    /* =====================================================
+       CHATBOT WIDGET
+       Opens/closes the panel, sends messages to the PHP
+       endpoint (?action=chatbot) and renders AI replies.
+       Conversation history is kept in memory and sent with
+       every request so the AI maintains full context.
+       ===================================================== */
+    function initChatbot() {
+        var launcher = document.getElementById('chatbotLauncher');
+        var panel    = document.getElementById('chatbotPanel');
+        var closeBtn = document.getElementById('chatbotClose');
+        var messages = document.getElementById('chatbotMessages');
+        var input    = document.getElementById('chatbotInput');
+        var sendBtn  = document.getElementById('chatbotSend');
+
+        if (!launcher || !panel || !messages || !input || !sendBtn) return;
+
+        var isOpen    = false;
+        var isWaiting = false;
+
+        /*
+         * Conversation history — array of {role, content} objects.
+         * role is 'user' or 'assistant'. Sent with every request so
+         * the OpenAI model has full context of the conversation.
+         * Capped at 20 entries (10 turns) client-side; the server
+         * also trims to the last 20 before forwarding to the API.
+         */
+        var history = [];
+
+        /* Suggestion chips shown in the welcome message */
+        var SUGGESTIONS = [
+            'Who is on the team?',
+            'What projects have you built?',
+            'What services do you offer?',
+            'Tell me about CHMSU-Alijis',
+            'How do I hire you?'
+        ];
+
+        /* ---- Helpers ---- */
+        function openPanel() {
+            isOpen = true;
+            panel.classList.add('is-visible');
+            panel.setAttribute('aria-hidden', 'false');
+            launcher.classList.add('is-open');
+            launcher.setAttribute('aria-expanded', 'true');
+            launcher.classList.add('chat-notif-hidden');
+            input.focus();
+        }
+
+        function closePanel() {
+            isOpen = false;
+            panel.classList.remove('is-visible');
+            panel.setAttribute('aria-hidden', 'true');
+            launcher.classList.remove('is-open');
+            launcher.setAttribute('aria-expanded', 'false');
+            launcher.focus();
+        }
+
+        function scrollToBottom() {
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        function appendMessage(role, text) {
+            var wrap = document.createElement('div');
+            wrap.className = 'chat-msg chat-msg--' + role;
+
+            var bubble = document.createElement('div');
+            bubble.className = 'chat-bubble';
+
+            // Render markdown-style bold (**text**) and preserve newlines
+            var escaped = text
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+
+            // Bold: **text**
+            escaped = escaped.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+            // Newlines to <br>
+            escaped = escaped.replace(/\n/g, '<br>');
+
+            bubble.innerHTML = escaped;
+            wrap.appendChild(bubble);
+            messages.appendChild(wrap);
+            scrollToBottom();
+            return wrap;
+        }
+
+        function showTyping() {
+            var wrap = document.createElement('div');
+            wrap.className = 'chat-msg chat-msg--bot chat-typing';
+            wrap.id = 'chatTyping';
+            var bubble = document.createElement('div');
+            bubble.className = 'chat-bubble';
+            for (var i = 0; i < 3; i++) {
+                var dot = document.createElement('span');
+                dot.className = 'typing-dot';
+                bubble.appendChild(dot);
+            }
+            wrap.appendChild(bubble);
+            messages.appendChild(wrap);
+            scrollToBottom();
+        }
+
+        function hideTyping() {
+            var el = document.getElementById('chatTyping');
+            if (el) el.remove();
+        }
+
+        function buildSuggestions(chips) {
+            var row = document.createElement('div');
+            row.className = 'chat-suggestions';
+            chips.forEach(function (label) {
+                var btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'chat-suggestion-chip';
+                btn.textContent = label;
+                btn.addEventListener('click', function () {
+                    messages.querySelectorAll('.chat-suggestions').forEach(function (r) { r.remove(); });
+                    sendMessage(label);
+                });
+                row.appendChild(btn);
+            });
+            return row;
+        }
+
+        /* ---- Welcome message ---- */
+        function injectWelcome() {
+            if (messages.children.length > 0) return;
+            appendMessage('bot', 'Hi! 👋 I\'m the DEVS Assistant — powered by AI.\n\nWe\'re a team of IT students from CHMSU-Alijis (Carlos Hilado Memorial State University). Ask me anything about our team, projects, services, or how to work with us.');
+            messages.appendChild(buildSuggestions(SUGGESTIONS));
+            scrollToBottom();
+        }
+
+        /* ---- Send a message ---- */
+        function sendMessage(text) {
+            text = text.trim();
+            if (!text || isWaiting) return;
+
+            // Render user bubble immediately
+            appendMessage('user', text);
+            input.value = '';
+            autoResizeInput();
+
+            // Snapshot history before adding new turn (what the server needs)
+            var historySnapshot = history.slice();
+
+            // Add to local history
+            history.push({ role: 'user', content: text });
+            // Keep last 20 messages
+            if (history.length > 20) history = history.slice(history.length - 20);
+
+            isWaiting = true;
+            sendBtn.disabled = true;
+            showTyping();
+
+            var base = (typeof BASE_URL !== 'undefined' ? BASE_URL : '');
+            var url  = base + '/?action=chatbot';
+
+            fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message: text,
+                    history: historySnapshot   // send history BEFORE this message
+                })
+            })
+            .then(function (res) {
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                return res.json();
+            })
+            .then(function (data) {
+                hideTyping();
+                var answer = (data && data.answer) ? data.answer : 'Sorry, I couldn\'t get a response right now. Please try again.';
+                appendMessage('bot', answer);
+
+                // Add assistant reply to history for next turn
+                history.push({ role: 'assistant', content: answer });
+                if (history.length > 20) history = history.slice(history.length - 20);
+            })
+            .catch(function () {
+                hideTyping();
+                // Remove the failed user message from history
+                history.pop();
+                appendMessage('bot', 'Something went wrong. Please check your connection and try again, or reach us at devzs2026@gmail.com.');
+            })
+            .finally(function () {
+                isWaiting = false;
+                sendBtn.disabled = false;
+                input.focus();
+            });
+        }
+
+        /* ---- Auto-resize textarea ---- */
+        function autoResizeInput() {
+            input.style.height = 'auto';
+            input.style.height = Math.min(input.scrollHeight, 90) + 'px';
+        }
+
+        /* ---- Event listeners ---- */
+        launcher.addEventListener('click', function () {
+            if (isOpen) {
+                closePanel();
+            } else {
+                openPanel();
+                injectWelcome();
+            }
+        });
+
+        closeBtn.addEventListener('click', closePanel);
+
+        sendBtn.addEventListener('click', function () {
+            sendMessage(input.value);
+        });
+
+        input.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage(input.value);
+            }
+        });
+
+        input.addEventListener('input', autoResizeInput);
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && isOpen) closePanel();
         });
     }
 

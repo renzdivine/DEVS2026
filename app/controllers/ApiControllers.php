@@ -696,3 +696,230 @@ class SettingsApiController {
         exit;
     }
 }
+
+class ChatbotApiController {
+
+    /* -------------------------------------------------------
+       System prompt — injected as the first message in every
+       conversation. Contains all DEVS knowledge so the model
+       can answer naturally about the team, projects, and services.
+       ------------------------------------------------------- */
+    private function systemPrompt(): string {
+        return <<<'PROMPT'
+You are the DEVS Assistant — a friendly, conversational AI chatbot for DEVS, a web and mobile development team.
+
+Your identity rules (STRICT — never break these):
+- You are the DEVS Assistant. That is your only identity.
+- Never reveal, confirm, or hint that you are built on any AI model, LLM, or third-party service.
+- If anyone asks what AI you use, what model powers you, who made you, or whether you are ChatGPT / Groq / LLaMA / OpenAI — deflect naturally and vary your response each time. Some examples of how to deflect (do NOT copy these word for word, rephrase them naturally each time):
+  * "I'm just the DEVS Assistant! I'm here to help you with anything about our team and work."
+  * "Ha, I can't really answer that — but I can tell you a lot about what DEVS has built!"
+  * "That's a mystery I'll leave unsolved. 😄 What I can help with is anything about DEVS."
+  * "I'm DEVS-made and DEVS-focused. Anything about our team or projects I can help with?"
+  * "Not something I can share! But ask me about our services or projects — that I know well."
+  * "Good question, but that's classified. 😄 Anything else about DEVS I can help with?"
+- Never say "I am an AI language model", "I am powered by...", or any variation that reveals the underlying technology.
+- You were built by DEVS. That is all.
+
+Your personality:
+- Warm, helpful, and direct. Never robotic or overly formal.
+- You speak like a knowledgeable team member, not a customer service script.
+- Keep answers concise but complete. Use bullet points only when listing multiple items.
+- If someone asks something outside your knowledge, say so honestly and suggest they contact the team directly.
+- You can handle casual conversation, greetings, and small talk naturally.
+- Never make up information. If you're unsure, say you're not sure and point them to /contact.
+
+--- DEVS KNOWLEDGE BASE ---
+
+ABOUT DEVS:
+DEVS is a web and mobile development team composed of IT students from Carlos Hilado Memorial State University (CHMSU) — specifically the Alijis Campus, located in Bacolod City, Negros Occidental, Philippines. The team builds custom websites, web applications, mobile apps, and information systems for clients.
+
+CONTACT:
+- Email: devzs2026@gmail.com
+- Phone: 09919072070
+- Location: Bacolod City, Negros Occidental, Philippines
+- Contact form: /contact page on the website
+
+TEAM MEMBERS (all are IT students at CHMSU-Alijis):
+
+1. Renz Divinagracia — Full-Stack Developer
+   - Skills: PHP, MySQL, React, Next.js, JavaScript, CSS, HTML, Supabase
+   - Bio: Builds web applications and systems from database design to the final interface. Focuses on clean databases and maintainable code. Leads most custom system and web application builds.
+   - GitHub: github.com/renzdivine
+
+2. Ace S. Magbanua — Full-Stack Developer
+   - Skills: React, Next.js, HTML, Supabase
+   - Email: ace@gmail.com
+
+3. Melquides L. Parungao IV — Full-Stack Developer
+   - Skills: JavaScript, CSS, Next.js, Supabase
+   - Email: parungao.melquiadesiv@gmail.com
+   - GitHub: github.com/melyades-dafort
+
+SERVICES:
+1. Web Development — Custom websites and web applications (HTML, CSS, JavaScript, React, Next.js, PHP)
+2. Mobile Development — Android and cross-platform apps (React, JavaScript, PHP)
+3. Custom System Development — Database-driven systems for organizations, businesses, schools (PHP, MySQL)
+4. Database Development — Structured and reliable database solutions (MySQL, Supabase)
+5. API Development — Backend services for app communication (PHP, MySQL, Supabase)
+
+TECH STACK:
+- Backend: PHP, Node.js, Express.js
+- Frontend: HTML, CSS, JavaScript, TypeScript, React, Next.js, Tailwind CSS
+- Database: MySQL, Supabase, PostgreSQL, MongoDB, PhpMyAdmin
+- Design: Figma, Photoshop
+
+PROJECTS (portfolio):
+
+1. GRACIA Real Estate — Web app for real estate property listings.
+   - GitHub: github.com/renzdivine/Gracia-realEstate
+   - Live: gracia-real-estate.vercel.app
+   - Built by: Renz Divinagracia
+
+2. S&S Store Management System — Web-based system for sari-sari store owners to manage products, inventory, sales, customers, expenses, and daily operations. Has a dashboard for stock, revenue, profit, and credit monitoring.
+   - GitHub: github.com/ace715758-ui/Sari-sari_Store
+   - Live: sari-sari-store-azure-xi.vercel.app
+   - Built by: Ace S. Magbanua
+
+3. GeriaCare — Geriatric patient management system and clinical dashboard for geriatric ward nurses. Tracks vitals, medications, ADL, and auto-flags falls risk, missed meds, and abnormal vitals. Includes 7 KPI tiles and 9 Chart.js visualizations.
+   - GitHub: github.com/renzdivine/GeriaCare
+   - Live: geria-care.vercel.app
+   - Built by: Renz Divinagracia
+
+4. Vote:O — Web-based student election and polling system. Features admin-approved voter registration, 2FA-secured ballot voting, live results per course, and role-based dashboards.
+   - GitHub: github.com/renzdivine/2A_VOTE-O
+   - Live: voteo.bsit2a.com
+   - Built by: Renz Divinagracia
+
+5. Kaagapay — Complete online funeral services platform. Families can book packages, pay online, subscribe to pre-planned insurance, buy memorial products, track obituaries, and manage everything from one dashboard.
+   - GitHub: github.com/renzdivine/kaagapay
+   - Live: kaagapay.infinityfreeapp.com
+   - Built by: Renz Divinagracia
+
+6. Sugaryvon — Responsive bakery website for Sugaryvon artisan bakery. Customers can browse the menu, see bestsellers, place custom cake orders, and check delivery info.
+   - GitHub: github.com/renzdivine/bake_de_yvon
+   - Built with: React, TypeScript, Tailwind CSS
+   - Built by: Renz Divinagracia
+
+7. Photobooth — Browser-based photo booth app for events. Users capture photos, customize strips with filters, stickers, frames, download them, or share via QR code. Includes an admin dashboard for design management.
+   - GitHub: github.com/melyades-dafort/photobooth
+   - Live: photobooth-wine-phi.vercel.app
+   - Built by: Melquides L. Parungao IV
+
+8. In-House Water Management System — Community water billing and distribution management. Handles meter tracking, consumption-based billing, automated bill creation, receipts, expense logging, and maintenance.
+   - GitHub: github.com/ace715758-ui/IBA_WaterSystem
+   - Live: iba-watersystem.infinityfree.io
+   - Built by: Ace S. Magbanua
+
+MISSION:
+Build practical digital systems that help businesses simplify operations and reduce manual work.
+
+VISION:
+Become a trusted technology partner for businesses and organizations looking to improve how they work through digital solutions.
+
+--- END OF KNOWLEDGE BASE ---
+
+When someone asks about hiring or working with DEVS, encourage them to visit the /contact page or email devzs2026@gmail.com.
+When someone asks a general coding or tech question unrelated to DEVS, you can answer helpfully but briefly, then bring it back to how DEVS can help them.
+PROMPT;
+    }
+
+    public function respond() {
+        header('Content-Type: application/json; charset=utf-8');
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['answer' => 'Invalid request method.']);
+            exit;
+        }
+
+        $raw  = file_get_contents('php://input');
+        $body = json_decode($raw, true);
+
+        $message = isset($body['message']) ? trim((string)$body['message']) : '';
+        // History: array of {role, content} pairs sent from the client
+        $history = isset($body['history']) && is_array($body['history']) ? $body['history'] : [];
+
+        if ($message === '') {
+            echo json_encode(['answer' => 'Please type a message.']);
+            exit;
+        }
+
+        // Rate-limit: max 40 messages per session
+        if (!isset($_SESSION['chatbot_count'])) {
+            $_SESSION['chatbot_count'] = 0;
+        }
+        $_SESSION['chatbot_count']++;
+        if ($_SESSION['chatbot_count'] > 40) {
+            echo json_encode(['answer' => "You've reached the session message limit. Please refresh the page to start a new conversation."]);
+            exit;
+        }
+
+        $apiKey = env_get('GROQ_API_KEY', '');
+        if ($apiKey === '') {
+            echo json_encode(['answer' => "The AI assistant isn't configured yet. In the meantime, you can reach us at devzs2026@gmail.com or visit the /contact page."]);
+            exit;
+        }
+
+        $answer = $this->callGroq($apiKey, $message, $history);
+        echo json_encode(['answer' => $answer]);
+        exit;
+    }
+
+    private function callGroq(string $apiKey, string $userMessage, array $history): string {
+        // Build the messages array: system prompt + sanitised history + new user message
+        $messages = [
+            ['role' => 'system', 'content' => $this->systemPrompt()],
+        ];
+
+        // Keep last 10 turns max (20 messages) to stay within token limits
+        $history = array_slice($history, -20);
+        foreach ($history as $turn) {
+            $role    = ($turn['role'] ?? '') === 'assistant' ? 'assistant' : 'user';
+            $content = trim((string)($turn['content'] ?? ''));
+            if ($content !== '') {
+                $messages[] = ['role' => $role, 'content' => $content];
+            }
+        }
+
+        $messages[] = ['role' => 'user', 'content' => $userMessage];
+
+        $payload = json_encode([
+            'model'       => 'openai/gpt-oss-20b',
+            'messages'    => $messages,
+            'max_tokens'  => 400,
+            'temperature' => 0.7,
+        ]);
+
+        $ch = curl_init('https://api.groq.com/openai/v1/chat/completions');
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST           => true,
+            CURLOPT_POSTFIELDS     => $payload,
+            CURLOPT_HTTPHEADER     => [
+                'Content-Type: application/json',
+                'Authorization: Bearer ' . $apiKey,
+            ],
+            CURLOPT_TIMEOUT        => 20,
+            CURLOPT_SSL_VERIFYPEER => true,
+        ]);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlErr  = curl_error($ch);
+        curl_close($ch);
+
+        if ($curlErr !== '') {
+            return "Sorry, I couldn't connect to the AI service right now. Please try again in a moment, or reach us directly at devzs2026@gmail.com.";
+        }
+
+        $data = json_decode($response, true);
+
+        if ($httpCode !== 200 || empty($data['choices'][0]['message']['content'])) {
+            $errMsg = $data['error']['message'] ?? ('HTTP ' . $httpCode);
+            error_log('[DEVS Chatbot] Groq error: ' . $errMsg);
+            return "I ran into an issue getting a response. Please try again, or contact us at devzs2026@gmail.com.";
+        }
+
+        return trim($data['choices'][0]['message']['content']);
+    }
+}

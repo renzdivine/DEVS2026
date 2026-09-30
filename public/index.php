@@ -267,6 +267,10 @@ function handleApiAction() {
         case 'adminEditTech':
             $adminController->manageTechnologies();
             break;
+        case 'chatbot':
+            $api = new ChatbotApiController();
+            $api->respond();
+            break;
         default:
             header('Location: ' . BASE_URL . '/');
             exit;
